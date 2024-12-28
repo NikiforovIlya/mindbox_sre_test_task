@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: web-app-night
+spec:
+  schedule: "0 22 * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: scale-down
+            image: bitnami/kubectl:latest
+            command:
+            - "kubectl"
+            - "scale"
+            - "--replicas=1"
+            - "deployment/web-app"
+          restartPolicy: OnFailure
+
+---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: web-app-day
+spec:
+  schedule: "0 5 * * *"  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: scale-up
+            image: bitnami/kubectl:latest
+            command:
+            - "kubectl"
+            - "scale"
+            - "--replicas=2"
+            - "deployment/web-app"
+          restartPolicy: OnFailure
